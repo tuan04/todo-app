@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, Select } from 'antd';
 import type { Task, TaskStatus } from '@/types/task';
+
 interface TaskFormModalProps {
   open: boolean;
   onCancel: () => void;
@@ -57,7 +58,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
       onCancel={onCancel}
       onOk={handleOk}
       confirmLoading={confirmLoading}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}
@@ -69,7 +70,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
           label="Tiêu đề công việc"
           rules={[
             { required: true, message: 'Vui lòng nhập tiêu đề công việc!' },
-            { max: 100, message: 'Tiêu đề không được vượt quá 100 ký tự!' }
+            { max: 50, message: 'Tiêu đề không được vượt quá 50 ký tự!' }
           ]}
         >
           <Input placeholder="Ví dụ: Hoàn thành báo cáo tiến độ..." />

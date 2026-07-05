@@ -1,103 +1,119 @@
 import React from 'react';
-import { Checkbox, Tag, Button, Popconfirm, Tooltip } from 'antd';
+import { Select, Button, Popconfirm, Tooltip } from 'antd';
 import { EditOutlined, DeleteOutlined, CalendarOutlined } from '@ant-design/icons';
-import type { Task } from '@/types/task';
+import type { Task, TaskStatus } from '@/types/task';
 import { formatDate } from '@/helpers/forma-date';
 
 interface TaskItemProps {
   task: Task;
-  onToggleStatus: (task: Task) => void;
+  onChangeStatus: (task: Task, status: TaskStatus) => void;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
 }
 
 export const TaskItem: React.FC<TaskItemProps> = ({
   task,
-  onToggleStatus,
+  onChangeStatus,
   onEdit,
   onDelete,
 }) => {
-  const isCompleted = task.taskStatus === 'COMPLETED';
-
-  const getStatusTag = (status: Task['taskStatus']) => {
+  // Hàm tạo inline style động cho dropdown trạng thái
+  const getSelectStyle = (status: TaskStatus) => {
     switch (status) {
       case 'PENDING':
-        return <Tag color="default">Chưa bắt đầu</Tag>;
+        return {
+          color: '#334155', // slate-700
+          backgroundColor: '#f1f5f9', // slate-100
+          border: '1px solid #cbd5e1', // slate-300
+          fontWeight: 700,
+          borderRadius: '8px',
+        };
       case 'IN_PROGRESS':
-        return <Tag color="processing">Đang làm</Tag>;
+        return {
+          color: '#1d4ed8', // blue-700
+          backgroundColor: '#dbeafe', // blue-100
+          border: '1px solid #93c5fd', // blue-300
+          fontWeight: 700,
+          borderRadius: '8px',
+        };
       case 'COMPLETED':
-        return <Tag color="success">Đã xong</Tag>;
+        return {
+          color: '#15803d', // green-700
+          backgroundColor: '#dcfce7', // green-100
+          border: '1px solid #86efac', // green-300
+          fontWeight: 700,
+          borderRadius: '8px',
+        };
       default:
-        return null;
+        return {};
     }
   };
 
+  const statusOptions = [
+    { value: 'PENDING', label: <span className="font-bold text-slate-700">Chưa bắt đầu</span> },
+    { value: 'IN_PROGRESS', label: <span className="font-bold text-blue-700">Đang làm</span> },
+    { value: 'COMPLETED', label: <span className="font-bold text-green-700">Đã xong</span> },
+  ];
+
   return (
     <div
-      className={`flex items-start justify-between p-4 mb-3 bg-white border border-slate-100 rounded-xl shadow-xs transition-all duration-200 hover:shadow-md hover:border-blue-100 ${isCompleted ? 'bg-slate-50/70 border-slate-100' : ''
-        }`}
+      className="flex items-center justify-between p-4 mb-3 bg-white border border-slate-100 rounded-xl shadow-xs transition-all duration-200 hover:shadow-md hover:border-blue-100"
     >
-      <div className="flex items-start flex-1 gap-3 min-w-0">
-        <div className="pt-0.5">
-          <Checkbox
-            checked={isCompleted}
-            onChange={() => onToggleStatus(task)}
-            className="scale-110"
-          />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2 mb-1">
-            <h3
-              className={`text-base font-semibold text-slate-800 wrap-break-word ${isCompleted ? 'line-through text-slate-400 font-medium' : ''
-                }`}
-            >
-              {task.title}
-            </h3>
-            {getStatusTag(task.taskStatus)}
-          </div>
-
-          {task.description && (
-            <p
-              className={`text-sm text-slate-500 mb-2 whitespace-pre-wrap ${isCompleted ? 'text-slate-400/80 line-through' : ''
-                }`}
-            >
-              {task.description}
-            </p>
-          )}
-
-          <div className="flex items-center text-xs text-slate-400 gap-1">
-            <CalendarOutlined />
-            <span>Tạo lúc: {formatDate(task.createdAt)}</span>
-          </div>
+      {/* Title & Created At */}
+      <div className="flex-1 min-w-0 pr-4">
+        <h3 className="text-base font-semibold text-slate-800 truncate">
+          {task.title}
+        </h3>
+        <div className="flex items-center text-xs text-slate-400 gap-1 mt-1">
+          <CalendarOutlined />
+          <span>Tạo lúc: {formatDate(task.createdAt)}</span>
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 ml-4 shrink-0">
-        <Tooltip title="Chỉnh sửa">
-          <Button
-            type="text"
-            icon={<EditOutlined className="text-slate-400 hover:text-blue-500" />}
-            onClick={() => onEdit(task)}
-          />
-        </Tooltip>
+      {/* Status Dropdown & Actions */}
+      <div className="flex items-center gap-4 shrink-0">
+        <Select
+          value={task.taskStatus}
+          onChange={(newStatus) => onChangeStatus(task, newStatus)}
+          options={statusOptions}
+          style={{
+            width: 140,
+            ...getSelectStyle(task.taskStatus),
+          }}
+          variant="borderless"
+          styles={{
+            popup: {
+              root: { borderRadius: '8px' }
+            }
+          }}
+        />
 
-        <Tooltip title="Xóa">
-          <Popconfirm
-            title="Xóa công việc"
-            description="Bạn có chắc chắn muốn xóa công việc này không?"
-            onConfirm={() => onDelete(task.id)}
-            okText="Xóa"
-            cancelText="Hủy"
-            okButtonProps={{ danger: true }}
-          >
+        <div className="flex items-center gap-1">
+          <Tooltip title="Chỉnh sửa">
             <Button
               type="text"
-              danger
-              icon={<DeleteOutlined className="text-slate-400 hover:text-red-500" />}
+              icon={<EditOutlined className="text-slate-400 hover:text-blue-500" />}
+              onClick={() => onEdit(task)}
             />
-          </Popconfirm>
-        </Tooltip>
+          </Tooltip>
+
+          <Tooltip title="Xóa">
+            <Popconfirm
+              title="Xóa công việc"
+              description="Bạn có chắc chắn muốn xóa công việc này không?"
+              onConfirm={() => onDelete(task.id)}
+              okText="Xóa"
+              cancelText="Hủy"
+              okButtonProps={{ danger: true }}
+            >
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined className="text-slate-400 hover:text-red-500" />}
+              />
+            </Popconfirm>
+          </Tooltip>
+        </div>
       </div>
     </div>
   );

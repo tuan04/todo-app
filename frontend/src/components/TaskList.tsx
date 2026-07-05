@@ -6,14 +6,14 @@ import { TaskItem } from '@/components/TaskItem';
 
 interface TaskListProps {
   tasks: Task[];
-  onToggleStatus: (task: Task) => void;
+  onChangeStatus: (task: Task, status: TaskStatus) => void;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({
   tasks,
-  onToggleStatus,
+  onChangeStatus,
   onEdit,
   onDelete,
 }) => {
@@ -78,7 +78,7 @@ export const TaskList: React.FC<TaskListProps> = ({
             <TaskItem
               key={task.id}
               task={task}
-              onToggleStatus={onToggleStatus}
+              onChangeStatus={onChangeStatus}
               onEdit={onEdit}
               onDelete={onDelete}
             />
