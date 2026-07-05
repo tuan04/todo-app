@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Layout, Button, Spin } from 'antd';
+import { Layout, Button, Spin, message } from 'antd';
 import { PlusOutlined, CheckSquareOutlined } from '@ant-design/icons';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { Task } from '@/types/task';
+import type { Task, TaskStatus } from '@/types/task';
 import { TaskList } from '@/components/TaskList';
 import { TaskFormModal } from '@/components/TaskFormModal';
-import { useTasks } from '@/hooks/useTasks';
+import { useTasks, useCreateTask } from '@/hooks/useTasks';
 
 const { Header, Content, Footer } = Layout;
 
@@ -15,7 +15,33 @@ function TodoApp() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
 
+  // Fetch dữ liệu
   const { data: tasks = [], isLoading, error } = useTasks();
+  const createTaskMutation = useCreateTask();
+
+  // Xử lý Thêm mới
+  const handleFormSubmit = (values: { title: string; description: string; taskStatus: TaskStatus }) => {
+    if (editingTask) {
+      setIsModalOpen(false);
+      setEditingTask(undefined);
+    } else {
+      createTaskMutation.mutate(
+        {
+          title: values.title,
+          description: values.description,
+        },
+        {
+          onSuccess: () => {
+            setIsModalOpen(false);
+            message.success('Thêm công việc mới thành công!');
+          },
+          onError: () => {
+            message.error('Thêm công việc thất bại. Vui lòng kiểm tra lại!');
+          },
+        }
+      );
+    }
+  };
 
   return (
     <Layout className="min-h-screen bg-slate-50/50" style={{ minHeight: '100vh' }}>
@@ -83,7 +109,8 @@ function TodoApp() {
         open={isModalOpen}
         initialValues={editingTask}
         onCancel={() => setIsModalOpen(false)}
-        onSubmit={() => setIsModalOpen(false)}
+        onSubmit={handleFormSubmit}
+        confirmLoading={createTaskMutation.isPending}
       />
     </Layout>
   );

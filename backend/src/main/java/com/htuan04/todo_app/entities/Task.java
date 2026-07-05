@@ -23,7 +23,7 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 50)
     private String title;
 
     @Column(columnDefinition = "TEXT")
@@ -31,7 +31,7 @@ public class Task {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "task_status")
-    private TaskStatus taskStatus;
+    private TaskStatus taskStatus = TaskStatus.PENDING;
 
     @CreationTimestamp
     @Column(name = "created_at")

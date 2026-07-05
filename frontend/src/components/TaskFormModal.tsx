@@ -67,10 +67,10 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
       >
         <Form.Item
           name="title"
-          label="Tiêu đề công việc"
+          label="Tên công việc"
           rules={[
-            { required: true, message: 'Vui lòng nhập tiêu đề công việc!' },
-            { max: 50, message: 'Tiêu đề không được vượt quá 50 ký tự!' }
+            { required: true, message: 'Vui lòng nhập tên công việc!' },
+            { max: 50, message: 'Yêu cầu không vượt quá 50 ký tự!' }
           ]}
         >
           <Input placeholder="Ví dụ: Hoàn thành báo cáo tiến độ..." />
@@ -81,7 +81,7 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
         </Form.Item>
 
         <Form.Item name="taskStatus" label="Trạng thái">
-          <Select>
+          <Select disabled={!initialValues}>
             <Select.Option value="PENDING">Chưa bắt đầu (Pending)</Select.Option>
             <Select.Option value="IN_PROGRESS">Đang thực hiện (In Progress)</Select.Option>
             <Select.Option value="COMPLETED">Đã hoàn thành (Completed)</Select.Option>
