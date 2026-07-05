@@ -1,4 +1,4 @@
-import type { ApiResponse, Task } from "@/types/task";
+import type { ApiResponse, Task, TaskStatus } from "@/types/task";
 import axios from "axios";
 
 const apiClient = axios.create({
@@ -15,6 +15,10 @@ export const TaskService = {
     },
     create: async (taskData: { title: string; description?: string }): Promise<Task> => {
         const response = await apiClient.post<ApiResponse<Task>>('/api/tasks', taskData);
+        return response.data.data;
+    },
+    update: async (id: string, taskData: { title: string; description?: string; taskStatus: TaskStatus }): Promise<Task> => {
+        const response = await apiClient.put<ApiResponse<Task>>(`/api/tasks/${id}`, taskData);
         return response.data.data;
     }
 };

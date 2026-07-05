@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -27,5 +28,10 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<ApiResponse<TaskResponseDTO>> addNewTask(@Valid @RequestBody AddTaskDTO request) {
         return ResponseEntity.ok(ApiResponse.success(taskService.addNewTask(request)));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<TaskResponseDTO>> editTask(@PathVariable UUID id, @Valid @RequestBody EditTaskDTO request) {
+        return ResponseEntity.ok(ApiResponse.success(taskService.editTask(id,request)));
     }
 }

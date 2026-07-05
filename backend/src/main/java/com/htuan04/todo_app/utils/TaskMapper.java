@@ -6,6 +6,7 @@ import com.htuan04.todo_app.dtos.TaskResponseDTO;
 import com.htuan04.todo_app.entities.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
@@ -18,7 +19,10 @@ public interface TaskMapper {
     @Mapping(target = "taskStatus", ignore = true)
     Task toEntityForCreate (AddTaskDTO dto);
 
-    Task toEntityForEdit (EditTaskDTO dto);
+    void updateEntity(
+            EditTaskDTO dto,
+            @MappingTarget Task task
+    );
 
     List<TaskResponseDTO> toListResponse (List<Task> tasks);
 }

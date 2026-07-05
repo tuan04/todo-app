@@ -3,8 +3,12 @@ package com.htuan04.todo_app.dtos;
 import com.htuan04.todo_app.enums.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
+
+@Getter
+@Setter
 
 public class EditTaskDTO {
     @NotBlank(message = "Vui lòng nhập tên công việc")
@@ -14,6 +18,5 @@ public class EditTaskDTO {
     private String description;
 
     @NotNull(message = "Vui lòng chọn trạng thái")
-    @Pattern(regexp = "PENDING|IN_PROGRESS|COMPLETED", message = "Trạng thái không hợp lệ")
     private TaskStatus taskStatus;
 }

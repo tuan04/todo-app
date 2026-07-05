@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Task, TaskStatus } from '@/types/task';
 import { TaskList } from '@/components/TaskList';
 import { TaskFormModal } from '@/components/TaskFormModal';
-import { useTasks, useCreateTask } from '@/hooks/useTasks';
+import { useTasks, useCreateTask, useUpdateTask } from '@/hooks/useTasks';
 
 const { Header, Content, Footer } = Layout;
 
@@ -18,12 +18,31 @@ function TodoApp() {
   // Fetch dữ liệu
   const { data: tasks = [], isLoading, error } = useTasks();
   const createTaskMutation = useCreateTask();
+  const updateTaskMutation = useUpdateTask();
 
-  // Xử lý Thêm mới
+  // Xử lý Thêm mới / Cập nhật
   const handleFormSubmit = (values: { title: string; description: string; taskStatus: TaskStatus }) => {
     if (editingTask) {
-      setIsModalOpen(false);
-      setEditingTask(undefined);
+      updateTaskMutation.mutate(
+        {
+          id: editingTask.id,
+          taskData: {
+            title: values.title,
+            description: values.description,
+            taskStatus: values.taskStatus,
+          },
+        },
+        {
+          onSuccess: () => {
+            setIsModalOpen(false);
+            setEditingTask(undefined);
+            message.success('Cập nhật công việc thành công!');
+          },
+          onError: () => {
+            message.error('Cập nhật công việc thất bại. Vui lòng kiểm tra lại!');
+          },
+        }
+      );
     } else {
       createTaskMutation.mutate(
         {
@@ -87,7 +106,23 @@ function TodoApp() {
             ) : (
               <TaskList
                 tasks={tasks}
-                onChangeStatus={() => { }}
+                onChangeStatus={(task, status) => {
+                  updateTaskMutation.mutate({
+                    id: task.id,
+                    taskData: {
+                      title: task.title,
+                      description: task.description,
+                      taskStatus: status,
+                    },
+                  }, {
+                    onSuccess: () => {
+                      message.success('Cập nhật trạng thái thành công!');
+                    },
+                    onError: () => {
+                      message.error('Cập nhật trạng thái thất bại!');
+                    }
+                  });
+                }}
                 onEdit={(task) => {
                   setEditingTask(task);
                   setIsModalOpen(true);
@@ -110,7 +145,7 @@ function TodoApp() {
         initialValues={editingTask}
         onCancel={() => setIsModalOpen(false)}
         onSubmit={handleFormSubmit}
-        confirmLoading={createTaskMutation.isPending}
+        confirmLoading={createTaskMutation.isPending || updateTaskMutation.isPending}
       />
     </Layout>
   );
