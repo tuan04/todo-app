@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Task, TaskStatus } from '@/types/task';
 import { TaskList } from '@/components/TaskList';
 import { TaskFormModal } from '@/components/TaskFormModal';
-import { useTasks, useCreateTask, useUpdateTask } from '@/hooks/useTasks';
+import { useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
 
 const { Header, Content, Footer } = Layout;
 
@@ -19,6 +19,7 @@ function TodoApp() {
   const { data: tasks = [], isLoading, error } = useTasks();
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
+  const deleteTaskMutation = useDeleteTask();
 
   // Xử lý Thêm mới / Cập nhật
   const handleFormSubmit = (values: { title: string; description: string; taskStatus: TaskStatus }) => {
@@ -127,7 +128,16 @@ function TodoApp() {
                   setEditingTask(task);
                   setIsModalOpen(true);
                 }}
-                onDelete={() => { }}
+                onDelete={(id) => {
+                  deleteTaskMutation.mutate(id, {
+                    onSuccess: () => {
+                      message.success('Xóa công việc thành công!');
+                    },
+                    onError: () => {
+                      message.error('Xóa công việc thất bại!');
+                    },
+                  });
+                }}
               />
             )}
           </div>

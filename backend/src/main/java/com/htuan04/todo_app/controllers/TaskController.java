@@ -34,4 +34,11 @@ public class TaskController {
     public ResponseEntity<ApiResponse<TaskResponseDTO>> editTask(@PathVariable UUID id, @Valid @RequestBody EditTaskDTO request) {
         return ResponseEntity.ok(ApiResponse.success(taskService.editTask(id,request)));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<TaskResponseDTO>> deleteTask(@PathVariable UUID id) {
+        taskService.deleteTask(id);
+
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
 }

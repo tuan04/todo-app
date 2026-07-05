@@ -29,3 +29,13 @@ export function useUpdateTask() {
     },
   });
 }
+
+export function useDeleteTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: TaskService.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+}

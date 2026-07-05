@@ -10,6 +10,7 @@ const apiClient = axios.create({
 
 export const TaskService = {
     getAll: async (): Promise<Task[]> => {
+        console.log("GET ALL");
         const response = await apiClient.get<ApiResponse<Task[]>>('/api/tasks');
         return response.data.data;
     },
@@ -20,5 +21,8 @@ export const TaskService = {
     update: async (id: string, taskData: { title: string; description?: string; taskStatus: TaskStatus }): Promise<Task> => {
         const response = await apiClient.put<ApiResponse<Task>>(`/api/tasks/${id}`, taskData);
         return response.data.data;
+    },
+    delete: async (id: string): Promise<void> => {
+        await apiClient.delete<ApiResponse<null>>(`/api/tasks/${id}`);
     }
 };
