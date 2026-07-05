@@ -4,11 +4,16 @@ import com.htuan04.todo_app.dtos.AddTaskDTO;
 import com.htuan04.todo_app.dtos.EditTaskDTO;
 import com.htuan04.todo_app.dtos.TaskResponseDTO;
 import com.htuan04.todo_app.entities.Task;
+import com.htuan04.todo_app.enums.TaskStatus;
 import com.htuan04.todo_app.exceptions.BusinessException;
 import com.htuan04.todo_app.exceptions.ErrorCode;
 import com.htuan04.todo_app.repositories.TaskRepository;
 import com.htuan04.todo_app.utils.TaskMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +27,11 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
 
-    public List<TaskResponseDTO> getAllTasks() {
-        return taskMapper.toListResponse(taskRepository.findAll());
+    public Page<TaskResponseDTO> getTasks(int page, int size, String keyword, TaskStatus status) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Task> taskPage = taskRepository.search(keyword, status, pageable);
+
+        return taskPage.map(taskMapper::toResponse);
     }
 
     @Transactional

@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TaskService } from '@/services/task-service';
-import type { Task, TaskStatus } from '@/types/task';
+import type { Page, Task, TaskStatus } from '@/types/task';
 
-export function useTasks() {
-  return useQuery<Task[], Error>({
-    queryKey: ['tasks'],
-    queryFn: TaskService.getAll,
+export function useTasks(page = 0, size = 10, keyword?: string, status?: TaskStatus | 'ALL') {
+  return useQuery<Page<Task>, Error>({
+    queryKey: ['tasks', { page, size, keyword, status }],
+    queryFn: () => TaskService.getAll(page, size, keyword, status),
   });
 }
 

@@ -15,8 +15,16 @@ function TodoApp() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | 'ALL'>('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
   // Fetch dữ liệu
-  const { data: tasks = [], isLoading, error } = useTasks();
+  const { data: taskPage, isLoading, error } = useTasks(currentPage - 1, pageSize, searchQuery, statusFilter);
+  const tasks = taskPage?.content || [];
+  const totalElements = taskPage?.totalElements || 0;
+
   const createTaskMutation = useCreateTask();
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
@@ -53,6 +61,7 @@ function TodoApp() {
         {
           onSuccess: () => {
             setIsModalOpen(false);
+            setCurrentPage(1); // Quay lại trang 1 để xem công việc mới nhất
             message.success('Thêm công việc mới thành công!');
           },
           onError: () => {
@@ -68,7 +77,7 @@ function TodoApp() {
       {/* Header */}
       <Header className="flex items-center justify-between px-6 bg-white border-b border-slate-100 h-16 shrink-0">
         <div className="flex items-center gap-2">
-          <CheckSquareOutlined className="text-2xl text-blue-600" />
+          <CheckSquareOutlined className="text-2xl bg-blue-400" />
           <span className="text-2xl font-bold text-blue-600 tracking-tight">Todo App</span>
         </div>
       </Header>
@@ -107,6 +116,20 @@ function TodoApp() {
             ) : (
               <TaskList
                 tasks={tasks}
+                searchQuery={searchQuery}
+                onSearchChange={(val) => {
+                  setSearchQuery(val);
+                  setCurrentPage(1);
+                }}
+                statusFilter={statusFilter}
+                onFilterChange={(val) => {
+                  setStatusFilter(val);
+                  setCurrentPage(1);
+                }}
+                currentPage={currentPage}
+                onPageChange={(page) => setCurrentPage(page)}
+                totalElements={totalElements}
+                pageSize={pageSize}
                 onChangeStatus={(task, status) => {
                   updateTaskMutation.mutate({
                     id: task.id,

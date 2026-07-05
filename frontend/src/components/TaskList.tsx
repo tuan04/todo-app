@@ -1,11 +1,19 @@
-import React, { useState, useMemo } from 'react';
-import { Input, Radio, Empty } from 'antd';
+import React from 'react';
+import { Input, Radio, Empty, Pagination } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import type { Task, TaskStatus } from '@/types/task';
 import { TaskItem } from '@/components/TaskItem';
 
 interface TaskListProps {
   tasks: Task[];
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+  statusFilter: TaskStatus | 'ALL';
+  onFilterChange: (value: TaskStatus | 'ALL') => void;
+  currentPage: number;
+  onPageChange: (page: number) => void;
+  totalElements: number;
+  pageSize: number;
   onChangeStatus: (task: Task, status: TaskStatus) => void;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
@@ -13,25 +21,23 @@ interface TaskListProps {
 
 export const TaskList: React.FC<TaskListProps> = ({
   tasks,
+  searchQuery,
+  onSearchChange,
+  statusFilter,
+  onFilterChange,
+  currentPage,
+  onPageChange,
+  totalElements,
+  pageSize,
   onChangeStatus,
   onEdit,
   onDelete,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<TaskStatus | 'ALL'>('ALL');
+  const [localSearch, setLocalSearch] = React.useState(searchQuery);
 
-  // Lọc danh sách công việc dựa trên ô tìm kiếm và bộ lọc trạng thái
-  const filteredTasks = useMemo(() => {
-    return tasks.filter((task) => {
-      const matchesSearch =
-        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
-
-      const matchesStatus = statusFilter === 'ALL' || task.taskStatus === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [tasks, searchQuery, statusFilter]);
+  React.useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
 
   return (
     <div>
@@ -39,10 +45,17 @@ export const TaskList: React.FC<TaskListProps> = ({
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="grow">
           <Input
-            placeholder="Tìm kiếm công việc theo tiêu đề hoặc mô tả..."
+            placeholder="Tìm kiếm công việc theo tiêu đề .."
             prefix={<SearchOutlined className="text-slate-400" />}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={localSearch}
+            onChange={(e) => {
+              const val = e.target.value;
+              setLocalSearch(val);
+              if (val === '') {
+                onSearchChange('');
+              }
+            }}
+            onPressEnter={() => onSearchChange(localSearch)}
             allowClear
             className="h-10 rounded-lg"
           />
@@ -50,40 +63,55 @@ export const TaskList: React.FC<TaskListProps> = ({
         <div className="shrink-0">
           <Radio.Group
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => onFilterChange(e.target.value)}
             optionType="button"
             buttonStyle="solid"
             className="h-10 flex"
           >
             <Radio.Button value="ALL" className="h-10 flex items-center justify-center min-w-[70px]">
-              Tất cả ({tasks.length})
+              Tất cả {statusFilter === 'ALL' ? `(${totalElements})` : ''}
             </Radio.Button>
             <Radio.Button value="PENDING" className="h-10 flex items-center justify-center min-w-[70px]">
-              Chưa bắt đầu ({tasks.filter((t) => t.taskStatus === 'PENDING').length})
+              Chưa bắt đầu {statusFilter === 'PENDING' ? `(${totalElements})` : ''}
             </Radio.Button>
             <Radio.Button value="IN_PROGRESS" className="h-10 flex items-center justify-center min-w-[70px]">
-              Đang làm ({tasks.filter((t) => t.taskStatus === 'IN_PROGRESS').length})
+              Đang làm {statusFilter === 'IN_PROGRESS' ? `(${totalElements})` : ''}
             </Radio.Button>
             <Radio.Button value="COMPLETED" className="h-10 flex items-center justify-center min-w-[70px]">
-              Đã xong ({tasks.filter((t) => t.taskStatus === 'COMPLETED').length})
+              Đã xong {statusFilter === 'COMPLETED' ? `(${totalElements})` : ''}
             </Radio.Button>
           </Radio.Group>
         </div>
       </div>
 
       {/* Hiển thị danh sách */}
-      {filteredTasks.length > 0 ? (
-        <div className="max-h-[60vh] overflow-y-auto pr-1">
-          {filteredTasks.map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              onChangeStatus={onChangeStatus}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          ))}
-        </div>
+      {tasks.length > 0 ? (
+        <>
+          <div className="max-h-[60vh] overflow-y-auto pr-1">
+            {tasks.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                onChangeStatus={onChangeStatus}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ))}
+          </div>
+
+          {/* Phân trang */}
+          {totalElements > pageSize && (
+            <div className="flex justify-end mt-6">
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={totalElements}
+                onChange={onPageChange}
+                showSizeChanger={false}
+              />
+            </div>
+          )}
+        </>
       ) : (
         <div className="bg-white border border-slate-100 rounded-2xl py-16 shadow-xs">
           <Empty

@@ -1,4 +1,4 @@
-import type { ApiResponse, Task, TaskStatus } from "@/types/task";
+import type { ApiResponse, Page, Task, TaskStatus } from "@/types/task";
 import axios from "axios";
 
 const apiClient = axios.create({
@@ -9,9 +9,12 @@ const apiClient = axios.create({
 });
 
 export const TaskService = {
-    getAll: async (): Promise<Task[]> => {
-        console.log("GET ALL");
-        const response = await apiClient.get<ApiResponse<Task[]>>('/api/tasks');
+    getAll: async (page = 0, size = 10, keyword?: string, status?: TaskStatus | 'ALL'): Promise<Page<Task>> => {
+        const params: Record<string, any> = { page, size };
+        if (keyword) params.keyword = keyword;
+        if (status && status !== 'ALL') params.status = status;
+
+        const response = await apiClient.get<ApiResponse<Page<Task>>>('/api/tasks', { params });
         return response.data.data;
     },
     create: async (taskData: { title: string; description?: string }): Promise<Task> => {

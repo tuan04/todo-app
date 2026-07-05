@@ -23,6 +23,4 @@ public interface TaskMapper {
             EditTaskDTO dto,
             @MappingTarget Task task
     );
-
-    List<TaskResponseDTO> toListResponse (List<Task> tasks);
 }

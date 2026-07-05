@@ -4,9 +4,11 @@ import com.htuan04.todo_app.dtos.AddTaskDTO;
 import com.htuan04.todo_app.dtos.ApiResponse;
 import com.htuan04.todo_app.dtos.EditTaskDTO;
 import com.htuan04.todo_app.dtos.TaskResponseDTO;
+import com.htuan04.todo_app.enums.TaskStatus;
 import com.htuan04.todo_app.services.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +23,12 @@ public class TaskController {
     private final TaskService taskService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<TaskResponseDTO>>> getAllTask() {
-        return ResponseEntity.ok(ApiResponse.success(taskService.getAllTasks()));
+    public ResponseEntity<ApiResponse<Page<TaskResponseDTO>>> getTasks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) TaskStatus status) {
+        return ResponseEntity.ok(ApiResponse.success(taskService.getTasks(page, size, keyword, status)));
     }
 
     @PostMapping
@@ -32,7 +38,7 @@ public class TaskController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<TaskResponseDTO>> editTask(@PathVariable UUID id, @Valid @RequestBody EditTaskDTO request) {
-        return ResponseEntity.ok(ApiResponse.success(taskService.editTask(id,request)));
+        return ResponseEntity.ok(ApiResponse.success(taskService.editTask(id, request)));
     }
 
     @DeleteMapping("/{id}")
