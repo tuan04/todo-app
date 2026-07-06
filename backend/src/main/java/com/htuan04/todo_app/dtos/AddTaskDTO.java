@@ -1,11 +1,10 @@
 package com.htuan04.todo_app.dtos;
 
-import com.htuan04.todo_app.enums.TaskStatus;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDateTime;
 import org.hibernate.validator.constraints.Length;
 
 @Setter
@@ -17,4 +16,7 @@ public class AddTaskDTO {
     private String title;
 
     private String description;
+
+    @Future(message = "Hạn chót phải ở trong tương lai")
+    private LocalDateTime dueDate;
 }

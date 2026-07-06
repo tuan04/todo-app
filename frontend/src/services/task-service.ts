@@ -10,11 +10,11 @@ export const TaskService = {
         const response = await apiClient.get<ApiResponse<Page<Task>>>('/api/tasks', { params });
         return response.data.data;
     },
-    create: async (taskData: { title: string; description?: string }): Promise<Task> => {
+    create: async (taskData: { title: string; description?: string; dueDate?: string | null }): Promise<Task> => {
         const response = await apiClient.post<ApiResponse<Task>>('/api/tasks', taskData);
         return response.data.data;
     },
-    update: async (id: string, taskData: { title: string; description?: string; taskStatus: TaskStatus }): Promise<Task> => {
+    update: async (id: string, taskData: { title: string; description?: string; taskStatus: TaskStatus; dueDate?: string | null }): Promise<Task> => {
         const response = await apiClient.put<ApiResponse<Task>>(`/api/tasks/${id}`, taskData);
         return response.data.data;
     },

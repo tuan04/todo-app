@@ -5,7 +5,7 @@ export interface Task {
   title: string;
   description?: string;
   taskStatus: TaskStatus;
-  createdAt: string;
+  dueDate?: string;
 }
 
 export interface ApiResponse<T> {

@@ -22,7 +22,7 @@ export function useCreateTask() {
 export function useUpdateTask() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, taskData }: { id: string; taskData: { title: string; description?: string; taskStatus: TaskStatus } }) =>
+    mutationFn: ({ id, taskData }: { id: string; taskData: { title: string; description?: string; taskStatus: TaskStatus; dueDate?: string | null } }) =>
       TaskService.update(id, taskData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });

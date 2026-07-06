@@ -17,6 +17,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const hasDescription = !!task.description?.trim();
+
   const getSelectStyle = (status: TaskStatus) => {
     switch (status) {
       case 'PENDING':
@@ -56,64 +59,83 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
   return (
     <div
-      className="flex items-center justify-between p-4 mb-3 bg-white border border-slate-100 rounded-xl shadow-xs transition-all duration-200 hover:shadow-md hover:border-blue-100"
+      className="flex flex-col p-4 mb-3 bg-white border border-slate-100 rounded-xl shadow-xs transition-all duration-200 hover:shadow-md hover:border-blue-100"
     >
-      {/* Title & Created At */}
-      <div className="flex-1 min-w-0 pr-4">
-        <h3 className="text-base font-semibold text-slate-800 truncate">
-          {task.title}
-        </h3>
-        <div className="flex items-center text-xs text-slate-400 gap-1 mt-1">
-          <CalendarOutlined />
-          <span>Tạo lúc: {formatDate(task.createdAt)}</span>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
+        {/* Title & Created At */}
+        <div
+          className={`flex-1 min-w-0 ${hasDescription ? 'cursor-pointer select-none' : ''}`}
+          onClick={() => hasDescription && setIsExpanded(!isExpanded)}
+        >
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-base font-semibold text-slate-800 wrap-break-word max-w-full">
+              {task.title}
+            </h3>
+            {hasDescription && (
+              <span className="text-[10px] text-blue-500 hover:text-blue-600 font-medium shrink-0 bg-blue-50 px-1.5 py-0.5 rounded">
+                {isExpanded ? 'Thu gọn' : 'Xem chi tiết'}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center text-xs text-slate-400 gap-1 mt-1">
+            <CalendarOutlined />
+            <span>Hạn chót: {task.dueDate ? formatDate(task.dueDate) : 'N/A'}</span>
+          </div>
         </div>
-      </div>
 
-      {/* Status Dropdown & Actions */}
-      <div className="flex items-center gap-4 shrink-0">
-        <Select
-          value={task.taskStatus}
-          onChange={(newStatus) => onChangeStatus(task, newStatus)}
-          options={statusOptions}
-          style={{
-            width: 140,
-            ...getSelectStyle(task.taskStatus),
-          }}
-          variant="borderless"
-          styles={{
-            popup: {
-              root: { borderRadius: '8px' }
-            }
-          }}
-        />
+        {/* Status Dropdown & Actions */}
+        <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0 mt-2 sm:mt-0">
+          <Select
+            value={task.taskStatus}
+            onChange={(newStatus) => onChangeStatus(task, newStatus)}
+            options={statusOptions}
+            style={{
+              width: 130,
+              ...getSelectStyle(task.taskStatus),
+            }}
+            variant="borderless"
+            styles={{
+              popup: {
+                root: { borderRadius: '8px' }
+              }
+            }}
+          />
 
-        <div className="flex items-center gap-1">
-          <Tooltip title="Chỉnh sửa">
-            <Button
-              type="text"
-              icon={<EditOutlined className="text-slate-400 hover:text-blue-500" />}
-              onClick={() => onEdit(task)}
-            />
-          </Tooltip>
-
-          <Tooltip title="Xóa">
-            <Popconfirm
-              title="Xóa công việc"
-              description="Bạn có chắc chắn muốn xóa công việc này không?"
-              onConfirm={() => onDelete(task.id)}
-              okText="Xóa"
-              cancelText="Hủy"
-              okButtonProps={{ danger: true }}
-            >
+          <div className="flex items-center gap-1">
+            <Tooltip title="Chỉnh sửa">
               <Button
                 type="text"
-                danger
-                icon={<DeleteOutlined className="text-slate-400 hover:text-red-500" />}
+                icon={<EditOutlined className="text-slate-400 hover:text-blue-500" />}
+                onClick={() => onEdit(task)}
               />
-            </Popconfirm>
-          </Tooltip>
+            </Tooltip>
+
+            <Tooltip title="Xóa">
+              <Popconfirm
+                title="Xóa công việc"
+                description="Bạn có chắc chắn muốn xóa công việc này không?"
+                onConfirm={() => onDelete(task.id)}
+                okText="Xóa"
+                cancelText="Hủy"
+                okButtonProps={{ danger: true }}
+              >
+                <Button
+                  type="text"
+                  danger
+                  icon={<DeleteOutlined className="text-slate-400 hover:text-red-500" />}
+                />
+              </Popconfirm>
+            </Tooltip>
+          </div>
         </div>
       </div>
+
+      {/* Description Expanded */}
+      {isExpanded && hasDescription && (
+        <div className="mt-3 pt-3 border-t border-slate-100 text-sm text-slate-500 whitespace-pre-wrap leading-relaxed animate-fadeIn">
+          {task.description}
+        </div>
+      )}
     </div>
   );
 };

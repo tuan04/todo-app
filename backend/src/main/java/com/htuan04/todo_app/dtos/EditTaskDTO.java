@@ -1,8 +1,10 @@
 package com.htuan04.todo_app.dtos;
 
 import com.htuan04.todo_app.enums.TaskStatus;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -19,4 +21,7 @@ public class EditTaskDTO {
 
     @NotNull(message = "Vui lòng chọn trạng thái")
     private TaskStatus taskStatus;
+
+    @Future(message = "Hạn chót phải ở trong tương lai")
+    private LocalDateTime dueDate;
 }

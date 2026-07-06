@@ -31,7 +31,7 @@ function TodoApp() {
   const deleteTaskMutation = useDeleteTask();
 
   // Xử lý Thêm mới / Cập nhật
-  const handleFormSubmit = (values: { title: string; description: string; taskStatus: TaskStatus }) => {
+  const handleFormSubmit = (values: { title: string; description: string; taskStatus: TaskStatus; dueDate?: string | null }) => {
     if (editingTask) {
       updateTaskMutation.mutate(
         {
@@ -40,6 +40,7 @@ function TodoApp() {
             title: values.title,
             description: values.description,
             taskStatus: values.taskStatus,
+            dueDate: values.dueDate,
           },
         },
         {
@@ -58,6 +59,7 @@ function TodoApp() {
         {
           title: values.title,
           description: values.description,
+          dueDate: values.dueDate,
         },
         {
           onSuccess: () => {
@@ -103,7 +105,7 @@ function TodoApp() {
           </div>
 
           {/* Task Board Container */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 shadow-sm min-h-[60vh] flex flex-col justify-start">
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 shadow-sm min-h-[50vh] flex flex-col justify-start">
             {isLoading ? (
               <div className="grow flex flex-col items-center justify-center py-16 gap-3">
                 <Spin size="large" />
@@ -150,6 +152,7 @@ function TodoApp() {
                       title: task.title,
                       description: task.description,
                       taskStatus: status,
+                      dueDate: task.dueDate,
                     },
                   }, {
                     onSuccess: () => {

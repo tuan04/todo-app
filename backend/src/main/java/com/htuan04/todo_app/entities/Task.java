@@ -36,4 +36,7 @@ public class Task {
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
 }
