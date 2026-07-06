@@ -19,6 +19,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const hasDescription = !!task.description?.trim();
+  const isOverdue = !!(task.dueDate && new Date(task.dueDate) < new Date() && task.taskStatus !== 'COMPLETED');
 
   const getSelectStyle = (status: TaskStatus) => {
     switch (status) {
@@ -78,8 +79,15 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             )}
           </div>
           <div className="flex items-center text-xs text-slate-400 gap-1 mt-1">
-            <CalendarOutlined />
-            <span>Hạn chót: {task.dueDate ? formatDate(task.dueDate) : 'N/A'}</span>
+            <CalendarOutlined className={isOverdue ? 'text-red-500' : ''} />
+            <span className={isOverdue ? 'text-red-500 font-semibold' : ''}>
+              Hạn chót: {task.dueDate ? formatDate(task.dueDate) : 'N/A'}
+              {isOverdue && (
+                <span className="bg-red-50 text-red-600 px-1.5 py-0.5 rounded ml-1 font-bold text-[9px] uppercase tracking-wider animate-pulse">
+                  Quá hạn
+                </span>
+              )}
+            </span>
           </div>
         </div>
 
