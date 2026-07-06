@@ -21,4 +21,4 @@ spring:
 
 app:
   cors:
-    allowed-origin: ${FE_URL:http://localhost}
+    allowed-origin: ${FE_URL:http://localhost:5173}
