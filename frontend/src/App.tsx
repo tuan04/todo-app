@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Layout, Button, Spin, message } from 'antd';
-import { PlusOutlined, CheckSquareOutlined } from '@ant-design/icons';
+import { PlusOutlined, CheckSquareOutlined, DisconnectOutlined } from '@ant-design/icons';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Task, TaskStatus } from '@/types/task';
 import { TaskList } from '@/components/TaskList';
 import { TaskFormModal } from '@/components/TaskFormModal';
 import { useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
+import { getErrorMessage } from '@/services/api';
 
 const { Header, Content, Footer } = Layout;
 
@@ -18,10 +19,10 @@ function TodoApp() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'ALL'>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 5;
 
   // Fetch dữ liệu
-  const { data: taskPage, isLoading, error } = useTasks(currentPage - 1, pageSize, searchQuery, statusFilter);
+  const { data: taskPage, isLoading, error, refetch } = useTasks(currentPage - 1, pageSize, searchQuery, statusFilter);
   const tasks = taskPage?.content || [];
   const totalElements = taskPage?.totalElements || 0;
 
@@ -47,8 +48,8 @@ function TodoApp() {
             setEditingTask(undefined);
             message.success('Cập nhật công việc thành công!');
           },
-          onError: () => {
-            message.error('Cập nhật công việc thất bại. Vui lòng kiểm tra lại!');
+          onError: (err) => {
+            message.error(getErrorMessage(err, 'Cập nhật công việc thất bại. Vui lòng kiểm tra lại!'));
           },
         }
       );
@@ -64,8 +65,8 @@ function TodoApp() {
             setCurrentPage(1); // Quay lại trang 1 để xem công việc mới nhất
             message.success('Thêm công việc mới thành công!');
           },
-          onError: () => {
-            message.error('Thêm công việc thất bại. Vui lòng kiểm tra lại!');
+          onError: (err) => {
+            message.error(getErrorMessage(err, 'Thêm công việc thất bại. Vui lòng kiểm tra lại!'));
           },
         }
       );
@@ -102,16 +103,28 @@ function TodoApp() {
           </div>
 
           {/* Task Board Container */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 shadow-sm min-h-[250px] flex flex-col justify-start">
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 shadow-sm min-h-[60vh] flex flex-col justify-start">
             {isLoading ? (
               <div className="grow flex flex-col items-center justify-center py-16 gap-3">
                 <Spin size="large" />
-                <span className="text-slate-400 text-sm">Đang tải danh sách công việc từ backend...</span>
+                <span className="text-slate-400 text-sm">Đang tải danh sách công việc...</span>
               </div>
             ) : error ? (
-              <div className="grow flex flex-col items-center justify-center py-16 text-center">
-                <span className="text-red-500 font-semibold mb-1">Không thể kết nối đến máy chủ!</span>
-                <span className="text-slate-400 text-xs">Vui lòng kiểm tra lại trạng thái Backend hoặc file cấu hình .env</span>
+              <div className="grow flex flex-col items-center justify-center py-12 text-center px-4">
+                <DisconnectOutlined className="text-5xl text-red-400 mb-4 animate-bounce" />
+                <span className="text-red-500 font-semibold text-base mb-1">
+                  {getErrorMessage(error, 'Không thể kết nối đến máy chủ!')}
+                </span>
+                <span className="text-slate-400 text-xs max-w-sm mb-4">
+                  Vui lòng kiểm tra kết nối mạng.
+                </span>
+                <Button
+                  type="primary"
+                  onClick={() => refetch()}
+                  className="h-9 bg-blue-600 hover:bg-blue-500 rounded-lg text-xs font-medium"
+                >
+                  Thử lại
+                </Button>
               </div>
             ) : (
               <TaskList
@@ -142,8 +155,8 @@ function TodoApp() {
                     onSuccess: () => {
                       message.success('Cập nhật trạng thái thành công!');
                     },
-                    onError: () => {
-                      message.error('Cập nhật trạng thái thất bại!');
+                    onError: (err) => {
+                      message.error(getErrorMessage(err, 'Cập nhật trạng thái thất bại!'));
                     }
                   });
                 }}
@@ -156,8 +169,8 @@ function TodoApp() {
                     onSuccess: () => {
                       message.success('Xóa công việc thành công!');
                     },
-                    onError: () => {
-                      message.error('Xóa công việc thất bại!');
+                    onError: (err) => {
+                      message.error(getErrorMessage(err, 'Xóa công việc thất bại!'));
                     },
                   });
                 }}

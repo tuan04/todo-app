@@ -1,12 +1,5 @@
 import type { ApiResponse, Page, Task, TaskStatus } from "@/types/task";
-import axios from "axios";
-
-const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_BACKEND_API_URL || "http://localhost:8000",
-    headers: {
-        "Content-Type": "application/json",
-    },
-});
+import { apiClient } from "./api";
 
 export const TaskService = {
     getAll: async (page = 0, size = 10, keyword?: string, status?: TaskStatus | 'ALL'): Promise<Page<Task>> => {

@@ -87,13 +87,13 @@ npm run dev
 Frontend
 
 ```
-https://...
+https://todo-app-liart-three-22.vercel.app
 ```
 
 Backend
 
 ```
-https://...
+https://todo-app-lkx3.onrender.com
 ```
 
 ## Author
